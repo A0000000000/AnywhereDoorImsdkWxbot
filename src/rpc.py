@@ -60,7 +60,7 @@ def init_rpc_server(fn_send_msg_to_admin):
     @app.get('/login')
     def login():
         return send_from_directory(app.static_folder, 'login.png')
-    Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 8080}, daemon=True).start()
+    Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 80}, daemon=True).start()
 
 
 def send_request(target, data):
