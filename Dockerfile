@@ -3,6 +3,8 @@ LABEL authors="maoyanluo"
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
 
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
 WORKDIR /ws
 
 RUN apt update
@@ -12,9 +14,9 @@ COPY src /ws/src
 COPY requirements.txt /ws
 
 RUN python3 -m venv wxbot
-RUN /bin/bash -c 'source /ws/wxbot/bin/activate'
+RUN source /ws/wxbot/bin/activate
 
-RUN /bin/bash -c 'pip3 install -r requirements.txt'
+RUN pip3 install -r requirements.txt
 
 WORKDIR /ws/src
 
