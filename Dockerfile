@@ -14,7 +14,7 @@ COPY requirements.txt /ws
 RUN python3 -m venv wxbot
 RUN /bin/bash -c 'source /ws/wxbot/bin/activate'
 
-RUN pip3 install -r requirements.txt
+RUN /bin/bash -c 'pip3 install -r requirements.txt'
 
 WORKDIR /ws/src
 
