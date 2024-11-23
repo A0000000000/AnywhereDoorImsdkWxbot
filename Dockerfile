@@ -12,7 +12,7 @@ COPY src /ws/src
 COPY requirements.txt /ws
 
 RUN python3 -m venv wxbot
-RUN source /ws/wxbot/bin/activate
+RUN /bin/bash -c 'source /ws/wxbot/bin/activate'
 
 RUN pip3 install -r requirements.txt
 
