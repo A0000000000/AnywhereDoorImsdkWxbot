@@ -8,15 +8,13 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 WORKDIR /ws
 
 RUN apt update
-RUN apt install -y python3 python3-pip python3-venv
+RUN apt install -y python3-full python3-pip
 
 COPY src /ws/src
 COPY requirements.txt /ws
 
 RUN python3 -m venv wxbot
-RUN source /ws/wxbot/bin/activate
-
-RUN pip3 install -r requirements.txt
+RUN source /ws/wxbot/bin/activate && pip3 install -r requirements.txt
 
 EXPOSE 80
 
