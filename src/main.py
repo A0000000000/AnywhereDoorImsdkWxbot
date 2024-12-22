@@ -1,10 +1,10 @@
-import rpc
+import server
 import wxbot
 
 
 def main():
-    rpc.init_rpc_server(wxbot.send_msg_to_admin)
-    wxbot.init(rpc.send_request)
+    server.init_http_server(wxbot.send_msg_to_admin)
+    wxbot.init(server.send_request)
 
 
 if __name__ == '__main__':
