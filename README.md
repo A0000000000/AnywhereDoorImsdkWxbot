@@ -7,7 +7,7 @@
 3. 打包镜像
    * `docker buildx build --platform linux/amd64 -t 192.168.25.5:31100/maoyanluo/anywhere-door-imsdk-wxbot:1.0 . --load`
 4. 运行容器
-   * `docker run --name anywhere-door-imsdk-wxbot -itd -p 8082:80 -e ADMIN_NICKNAME=猫眼螺 -e HOST=192.168.25.7 -e PORT=8081 -e USERNAME=maoyanluo -e TOKEN=1998 -e IMSDK_NAME=wxbot 192.168.25.5:31100/maoyanluo/anywhere-door-imsdk-wxbot:1.0`
+   * `docker run --name anywhere-door-imsdk-wxbot -itd -p 8082:80 -e ADMIN_NICKNAME=猫眼螺 -e HOST=192.168.25.7 -e PORT=8081 -e USERNAME=maoyanluo -e TOKEN=1998 -e IMSDK_NAME=wxbot -v /home/maoyanluo/volume/session:/ws/src/session 192.168.25.5:31100/maoyanluo/anywhere-door-imsdk-wxbot:1.0`
 
 ## 使用方式
 * /login：
