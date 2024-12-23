@@ -20,4 +20,6 @@ EXPOSE 80
 
 WORKDIR /ws/src
 
+VOLUME ["/ws/src/session"]
+
 ENTRYPOINT ["/ws/wxbot/bin/python3", "main.py"]

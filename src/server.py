@@ -7,11 +7,16 @@ from threading import Thread
 
 import constant
 
+def empty_send_method(data):
+    print(data)
+
+
 server_config = {
     constant.CONFIG_URL: '',
     constant.CONFIG_TOKEN: '',
     constant.CONFIG_IMSDK_NAME: '',
-    constant.CONFIG_USERNAME: ''
+    constant.CONFIG_USERNAME: '',
+    constant.CONFIG_SEND_METHOD: empty_send_method
 }
 
 
@@ -40,6 +45,7 @@ def init_http_server(fn_send_msg_to_admin):
     server_config[constant.CONFIG_TOKEN] = token
     server_config[constant.CONFIG_IMSDK_NAME] = imsdk_name
     server_config[constant.CONFIG_USERNAME] = username
+    server_config[constant.CONFIG_SEND_METHOD] = fn_send_msg_to_admin
 
     app = Flask(constant.FLASK_APP_NAME, static_folder=constant.FLASK_STATIC_FOLDER)
 
@@ -88,4 +94,8 @@ def send_request(target, data):
         constant.PARAMS_TOKEN: server_config[constant.CONFIG_TOKEN],
         constant.PARAMS_USERNAME: server_config[constant.CONFIG_USERNAME]
     })
+    resp = json.loads(res.text)
+    if resp[constant.PARAMS_CODE] != constant.ERROR_CODE_SUCCESS:
+        server_config[constant.CONFIG_SEND_METHOD](resp[constant.PARAMS_MESSAGE])
+
     print(res.text)

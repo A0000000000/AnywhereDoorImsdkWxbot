@@ -24,7 +24,7 @@ CONFIG_HOST = 'host'
 CONFIG_PORT = 'port'
 
 LOGIN_PIC_DIR = 'login.png'
-LOGIN_STATUS_STORAGE_DIR = 'itchat.pkl'
+LOGIN_STATUS_STORAGE_DIR = 'session/itchat.pkl'
 
 ERROR_CMD_FORMAT = '命令格式错误。'
 ERROR_INIT = '服务初始化错误。'
