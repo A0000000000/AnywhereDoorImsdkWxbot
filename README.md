@@ -114,4 +114,5 @@ spec:
 ```
 
 ## 使用方式
-1. 保证容器正常运行, 并且启动后, 扫描登录成功即可
+1. 保证容器正常运行, 并且启动后, 扫描登录成功
+2. 注册imsdk: POST AnywhereDoorManager/imsdk/create & Header: token: token & Body: { "imsdk_name": "name", "imsdk_describe": "desc", "imsdk_host": "anywhere-door-imsdk-wxbot-service.anywhere-door", "imsdk_port": 80, "imsdk_token": "token" }
