@@ -33,6 +33,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: anywhere-door-imsdk-wxbot-pvc
+  namespace: anywhere-door
 spec:
   accessModes:
     - ReadWriteOnce
@@ -45,6 +46,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: anywhere-door-imsdk-wxbot-statefulset
+  namespace: anywhere-door
 spec:
   replicas: 1
   selector:
@@ -87,6 +89,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: anywhere-door-imsdk-wxbot-service
+  namespace: anywhere-door
   labels:
     app: anywhere-door-imsdk-wxbot
 spec:
@@ -101,6 +104,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: anywhere-door-imsdk-wxbot-service-export
+  namespace: anywhere-door
   labels:
     app: anywhere-door-imsdk-wxbot
 spec:
