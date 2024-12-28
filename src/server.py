@@ -71,7 +71,6 @@ def init_http_server(fn_send_msg_to_admin):
                              + constant.WHITE_SPACE
                              + name
                              + constant.COLON
-                             + constant.WHITE_SPACE
                              + constant.NEWLINE
                              + data)
         resp = {
