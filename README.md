@@ -27,6 +27,7 @@
    * `docker run --name anywhere-door-imsdk-wxbot -itd -p 8082:80 -e ADMIN_NICKNAME=admin_username -e HOST=ip -e PORT=port -e USERNAME=username -e TOKEN=token -e IMSDK_NAME=wxbot -v /home/maoyanluo/volume/session:/ws/src/session --restart=always 192.168.25.5:31100/maoyanluo/anywhere-door-imsdk-wxbot:1.0`
 
 ### Kubernetes
+* 主配置文件
 ```yaml
 ---
 apiVersion: v1
@@ -99,7 +100,9 @@ spec:
     targetPort: 80
   selector:
     app: anywhere-door-imsdk-wxbot
----
+```
+* 首次使用需要额外暴露如下服务, 登录成功后, 需要将该服务删除(强烈推荐, 为了安全起见, imsdk不应该向集群外暴露服务, 登录这个接口也是无奈之举)
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -118,5 +121,5 @@ spec:
 ```
 
 ## 使用方式
-1. 保证容器正常运行, 并且启动后, 扫描登录成功
+1. 保证容器正常运行, 并且启动后, 扫码登录成功
 2. 注册imsdk: POST AnywhereDoorManager/imsdk/create & Header: token: token & Body: { "imsdk_name": "name", "imsdk_describe": "desc", "imsdk_host": "anywhere-door-imsdk-wxbot-service.anywhere-door", "imsdk_port": 80, "imsdk_token": "token" }

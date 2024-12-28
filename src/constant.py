@@ -54,4 +54,7 @@ ERROR_MESSAGE_SUCCESS = 'success'
 ERROR_MESSAGE_INVALID_TOKEN = 'token is invalid'
 ERROR_MESSAGE_INVALID_TARGET = 'target is not this'
 
+FROM = 'from'
+WHITE_SPACE = ' '
 NEWLINE = '\n'
+COLON = ':'

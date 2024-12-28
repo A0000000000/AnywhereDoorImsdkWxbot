@@ -67,7 +67,13 @@ def init_http_server(fn_send_msg_to_admin):
                 constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_INVALID_TARGET
             }
             return json.dumps(resp)
-        fn_send_msg_to_admin(name + constant.NEWLINE + data)
+        fn_send_msg_to_admin(constant.FROM
+                             + constant.WHITE_SPACE
+                             + name
+                             + constant.COLON
+                             + constant.WHITE_SPACE
+                             + constant.NEWLINE
+                             + data)
         resp = {
             constant.PARAMS_CODE: constant.ERROR_CODE_SUCCESS,
             constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_SUCCESS
