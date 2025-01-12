@@ -7,6 +7,7 @@ from threading import Thread
 
 import constant
 
+
 def empty_send_method(data):
     print(data)
 
@@ -82,6 +83,7 @@ def init_http_server(fn_send_msg_to_admin):
     @app.get(constant.FLASK_URL_LOGIN)
     def login():
         return send_from_directory(app.static_folder, constant.LOGIN_PIC_DIR)
+
     Thread(target=app.run,
            kwargs={
                constant.CONFIG_HOST: constant.FLASK_HOST,

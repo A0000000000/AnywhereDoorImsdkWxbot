@@ -1,6 +1,9 @@
 # AnywhereDoorImsdkWxbot
 * imsdk 微信机器人实现
 
+## Deprecated
+* 本项目依赖的itchat-uos不可用了, 暂时废弃, 请换用飞书机器人
+
 ## 使用方式
 * /login：
   * 返回微信登录二维码，使用手机扫描登录即可，需要占用微信PC登录的设备
