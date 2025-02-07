@@ -50,7 +50,7 @@ def init_inner():
             'X-GEWE-TOKEN': gewe_token
         }, timeout=60).json()
         if resp['ret'] != 200:
-            print('gewe 检出登录状态失败, 程序退出')
+            print('gewe 检查登录状态失败, 程序退出')
             os.kill(os.getpid(), signal.SIGTERM)
         if resp['data']:
             need_login = False
