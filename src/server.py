@@ -3,7 +3,6 @@ import os
 import requests
 from flask import Flask, send_from_directory
 from flask import request
-from threading import Thread
 
 import constant
 
@@ -21,26 +20,16 @@ server_config = {
 }
 
 
-def init_http_server(fn_send_msg_to_admin):
+def init_http_server(fn_send_msg_to_admin, wxbot_config):
     host = os.getenv(constant.ENV_HOST)
     port = os.getenv(constant.ENV_PORT)
     prefix = os.getenv(constant.ENV_PREFIX)
-    username = os.getenv(constant.ENV_USERNAME)
-    if host is None:
-        host = constant.DEFAULT_HOST
-    if port is None:
-        port = constant.DEFAULT_PORT
     if prefix is None:
-        prefix = constant.DEFAULT_PREFIX
-    if username is None:
-        username = constant.DEFAULT_USERNAME
+        prefix = ''
+    username = os.getenv(constant.ENV_USERNAME)
     url = constant.TEMPLATE_URL % (host, port, prefix)
     token = os.getenv(constant.ENV_TOKEN)
-    if token is None:
-        token = constant.DEFAULT_TOKEN
     imsdk_name = os.getenv(constant.ENV_IMSDK_NAME)
-    if imsdk_name is None:
-        imsdk_name = constant.DEFAULT_IMSDK_NAME
 
     server_config[constant.CONFIG_URL] = url
     server_config[constant.CONFIG_TOKEN] = token
@@ -80,16 +69,29 @@ def init_http_server(fn_send_msg_to_admin):
         }
         return json.dumps(resp)
 
+    @app.post(constant.FLASK_URL_COLLECT)
+    def on_rev_message():
+        data = request.json
+        if 'TypeName' in data and data['TypeName'] == 'AddMsg' and data['Data']['MsgType'] == 1:
+            text = data['Data']['Content']['string']
+            from_user = data['Data']['FromUserName']['string']
+            if from_user == wxbot_config[constant.CONFIG_TARGET_WECHAT_ID]:
+                index = 0
+                while index < len(text):
+                    if text[index] == ' ':
+                        break
+                    index = index + 1
+                if index == 0 or index == len(text):
+                    fn_send_msg_to_admin(constant.ERROR_CMD_FORMAT + constant.WHITE_SPACE + text)
+                else:
+                    send_request(text[:index], text[index + 1:])
+        return 'ok'
+
     @app.get(constant.FLASK_URL_LOGIN)
     def login():
-        return send_from_directory(app.static_folder, constant.LOGIN_PIC_DIR)
+        return send_from_directory(app.static_folder, constant.SESSION_LOGIN_FILE)
 
-    Thread(target=app.run,
-           kwargs={
-               constant.CONFIG_HOST: constant.FLASK_HOST,
-               constant.CONFIG_PORT: constant.FLASK_PORT
-           },
-           daemon=True).start()
+    app.run(constant.FLASK_HOST, constant.FLASK_PORT)
 
 
 def send_request(target, data):
@@ -104,5 +106,4 @@ def send_request(target, data):
     resp = json.loads(res.text)
     if resp[constant.PARAMS_CODE] != constant.ERROR_CODE_SUCCESS:
         server_config[constant.CONFIG_SEND_METHOD](resp[constant.PARAMS_MESSAGE])
-
     print(res.text)
