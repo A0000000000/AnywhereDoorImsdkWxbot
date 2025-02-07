@@ -32,6 +32,7 @@ def init_inner():
             config = json.load(f)
             if 'app_id' in config:
                 app_id = config['app_id']
+    print('app_id = %s' % app_id)
     res = requests.post(gewe_api + '/v2/api/tools/getTokenId', headers={
         'Content-Type': 'application/json'
     }, timeout=60).json()
