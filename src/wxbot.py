@@ -70,7 +70,7 @@ def init_inner():
         qr_image = base64.b64decode(qr_code_base64.split(',')[1])
         with open(constant.SESSION_LOGIN_FILE, 'wb') as f:
             f.write(qr_image)
-            print('app_id = %s, app_id_new = %s' % (app_id, app_id_new))
+        print('app_id = %s, app_id_new = %s' % (app_id, app_id_new))
         if app_id != app_id_new:
             app_id = app_id_new
             with open(constant.SESSION_CONFIG_FILE, 'w') as f:
