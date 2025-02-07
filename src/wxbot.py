@@ -75,7 +75,7 @@ def init_inner():
             app_id = app_id_new
             with open(constant.SESSION_CONFIG_FILE, 'w') as f:
                 f.write(json.dumps({
-                    'appId': app_id,
+                    'app_id': app_id,
                 }))
         while True:
             resp = requests.post(gewe_api + '/v2/api/login/checkLogin', json={
