@@ -54,6 +54,22 @@ ERROR_MESSAGE_SUCCESS = 'success'
 ERROR_MESSAGE_INVALID_TOKEN = 'token is invalid'
 ERROR_MESSAGE_INVALID_TARGET = 'target is not this'
 
+EMPTY_STR = ''
+RET = 'ret'
+
+GEWE_PARAMS_APP_ID = 'appId'
+GEWE_UUID = 'uuid'
+GEWE_QR_IMAGE_BASE64 = 'qrImgBase64'
+GEWE_STATUS = 'status'
+GEWE_CALLBACK_URL = 'callbackUrl'
+GEWE_CONTACTS_INFO = 'contactsInfo'
+GEWE_TO_WXID = 'toWxid'
+GEWE_CONTENT = 'content'
+
+HEADER_TOKEN = 'X-GEWE-TOKEN'
+HEADER_CONTENT_TYPE = 'Content-Type'
+APPLICATION_JSON = 'application/json'
+
 FROM = 'from'
 WHITE_SPACE = ' '
 NEWLINE = '\n'

@@ -9,10 +9,10 @@ from threading import Thread
 
 
 GEWE_CONFIG = {
-    constant.CONFIG_APP_ID: '',
-    constant.CONFIG_GEWE_TOKEN: '',
-    constant.CONFIG_GEWE_API: '',
-    constant.CONFIG_TARGET_WECHAT_ID: ''
+    constant.CONFIG_APP_ID: constant.EMPTY_STR,
+    constant.CONFIG_GEWE_TOKEN: constant.EMPTY_STR,
+    constant.CONFIG_GEWE_API: constant.EMPTY_STR,
+    constant.CONFIG_TARGET_WECHAT_ID: constant.EMPTY_STR
 }
 
 
@@ -26,116 +26,101 @@ def init_inner():
     collect = os.getenv(constant.ENV_COLLECT)
     gewe_api = os.getenv(constant.ENV_API_GEWE)
     admin_wxid = os.getenv(constant.ENV_ADMIN_WXID)
-    app_id = ''
+    app_id = constant.EMPTY_STR
     if os.path.exists(constant.SESSION_CONFIG_FILE):
         with open(constant.SESSION_CONFIG_FILE, 'r') as f:
             config = json.load(f)
-            if 'app_id' in config:
-                app_id = config['app_id']
-    print('app_id = %s' % app_id)
+            if constant.CONFIG_APP_ID in config:
+                app_id = config[constant.CONFIG_APP_ID]
     res = requests.post(gewe_api + '/v2/api/tools/getTokenId', headers={
-        'Content-Type': 'application/json'
+        constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON
     }, timeout=60).json()
 
-    if res['ret'] != 200:
-        print('gewe token获取失败, 程序退出')
+    if res[constant.RET] != 200:
         os.kill(os.getpid(), signal.SIGTERM)
-    gewe_token = res['data']
+    gewe_token = res[constant.PARAMS_DATA]
     need_login = True
-    if app_id != '':
+    if app_id != constant.EMPTY_STR:
         resp = requests.post(gewe_api + '/v2/api/login/checkOnline', json={
-            'appId': app_id,
+            constant.GEWE_PARAMS_APP_ID: app_id,
         }, headers={
-            'Content-Type': 'application/json',
-            'X-GEWE-TOKEN': gewe_token
+            constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+            constant.HEADER_TOKEN: gewe_token
         }, timeout=60).json()
-        if resp['ret'] != 200:
-            print('gewe 检查登录状态失败, 程序退出')
+        if resp[constant.RET] != 200:
             os.kill(os.getpid(), signal.SIGTERM)
-        if resp['data']:
+        if resp[constant.PARAMS_DATA]:
             need_login = False
     if need_login:
         resp = requests.post(gewe_api + '/v2/api/login/getLoginQrCode', json={
-            'appId': app_id,
+            constant.GEWE_PARAMS_APP_ID: app_id,
         }, headers={
-            'Content-Type': 'application/json',
-            'X-GEWE-TOKEN': gewe_token
+            constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+            constant.HEADER_TOKEN: gewe_token
         }, timeout=60).json()
-        if resp['ret'] != 200:
-            print('gewe 获取登录信息失败, 程序退出')
+        if resp[constant.RET] != 200:
             os.kill(os.getpid(), signal.SIGTERM)
-        app_id_new = resp['data']['appId']
-        uuid = resp['data']['uuid']
-        qr_code_base64 = resp['data']['qrImgBase64']
+        app_id_new = resp[constant.PARAMS_DATA][constant.GEWE_PARAMS_APP_ID]
+        uuid = resp[constant.PARAMS_DATA][constant.GEWE_UUID]
+        qr_code_base64 = resp[constant.PARAMS_DATA][constant.GEWE_QR_IMAGE_BASE64]
         qr_image = base64.b64decode(qr_code_base64.split(',')[1])
         with open(constant.SESSION_LOGIN_FILE, 'wb') as f:
             f.write(qr_image)
-        print('app_id = %s, app_id_new = %s' % (app_id, app_id_new))
         if app_id != app_id_new:
             app_id = app_id_new
             with open(constant.SESSION_CONFIG_FILE, 'w') as f:
                 f.write(json.dumps({
-                    'app_id': app_id,
+                    constant.CONFIG_APP_ID: app_id,
                 }))
         while True:
             resp = requests.post(gewe_api + '/v2/api/login/checkLogin', json={
-                'appId': app_id,
-                'uuid': uuid
+                constant.GEWE_PARAMS_APP_ID: app_id,
+                constant.GEWE_UUID: uuid
             }, headers={
-                'Content-Type': 'application/json',
-                'X-GEWE-TOKEN': gewe_token
+                constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+                constant.HEADER_TOKEN: gewe_token
             }, timeout=60).json()
-            if resp['ret'] != 200:
-                print('gewe 检出登录状态失败, 程序退出')
+            if resp[constant.RET] != 200:
                 os.kill(os.getpid(), signal.SIGTERM)
-            if resp['data']['status'] == 2:
+            if resp[constant.PARAMS_DATA][constant.GEWE_STATUS] == 2:
                 os.remove(constant.SESSION_LOGIN_FILE)
                 break
-            print('当前状态: %d' % (resp['data']['status']))
             time.sleep(5)
-    # 到此为止, 登录成功，可以设置参数及回调消息了
     resp = requests.post(gewe_api + '/v2/api/tools/setCallback', json={
-        'token': gewe_token,
-        'callbackUrl': collect + constant.FLASK_URL_COLLECT
+        constant.PARAMS_TOKEN: gewe_token,
+        constant.GEWE_CALLBACK_URL: collect + constant.FLASK_URL_COLLECT
     }, headers={
-        'Content-Type': 'application/json',
-        'X-GEWE-TOKEN': gewe_token
+        constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+        constant.HEADER_TOKEN: gewe_token
     }, timeout=60).json()
-
-    if resp['ret'] != 200:
-        print('回调消息地址设置失败.')
+    if resp[constant.RET] != 200:
         os.kill(os.getpid(), signal.SIGTERM)
-    # 保存上下文(gewe_token、app_id)
     GEWE_CONFIG[constant.CONFIG_APP_ID] = app_id
     GEWE_CONFIG[constant.CONFIG_GEWE_TOKEN] = gewe_token
     GEWE_CONFIG[constant.CONFIG_GEWE_API] = gewe_api
     resp = requests.post(gewe_api + '/v2/api/contacts/search', json={
-        'appId': app_id,
-        'contactsInfo': admin_wxid
+        constant.GEWE_PARAMS_APP_ID: app_id,
+        constant.GEWE_CONTACTS_INFO: admin_wxid
     }, headers={
-        'Content-Type': 'application/json',
-        'X-GEWE-TOKEN': gewe_token
+        constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+        constant.HEADER_TOKEN: gewe_token
     }, timeout=60).json()
-    if resp['ret'] != 200 or 'v3' not in resp['data']:
-        print('管理员账号不存在.')
+    if resp[constant.RET] != 200 or 'v3' not in resp[constant.PARAMS_DATA]:
         os.kill(os.getpid(), signal.SIGTERM)
-    GEWE_CONFIG[constant.CONFIG_TARGET_WECHAT_ID] = resp['data']['v3']
+    GEWE_CONFIG[constant.CONFIG_TARGET_WECHAT_ID] = resp[constant.PARAMS_DATA]['v3']
 
 
 def send_msg_to_admin(text):
-    if (GEWE_CONFIG[constant.CONFIG_APP_ID] != ''
-            and GEWE_CONFIG[constant.CONFIG_GEWE_TOKEN] != ''
-            and GEWE_CONFIG[constant.CONFIG_GEWE_API] != ''
-            and GEWE_CONFIG[constant.CONFIG_TARGET_WECHAT_ID] != ''):
-        resp = requests.post(GEWE_CONFIG['gewe_api'] + '/v2/api/message/postText', json={
-            'appId': GEWE_CONFIG[constant.CONFIG_APP_ID],
-            'toWxid': GEWE_CONFIG[constant.CONFIG_TARGET_WECHAT_ID],
-            'content': text
+    if (GEWE_CONFIG[constant.CONFIG_APP_ID] != constant.EMPTY_STR
+            and GEWE_CONFIG[constant.CONFIG_GEWE_TOKEN] != constant.EMPTY_STR
+            and GEWE_CONFIG[constant.CONFIG_GEWE_API] != constant.EMPTY_STR
+            and GEWE_CONFIG[constant.CONFIG_TARGET_WECHAT_ID] != constant.EMPTY_STR):
+        requests.post(GEWE_CONFIG[constant.CONFIG_GEWE_API] + '/v2/api/message/postText', json={
+            constant.GEWE_PARAMS_APP_ID: GEWE_CONFIG[constant.CONFIG_APP_ID],
+            constant.GEWE_TO_WXID: GEWE_CONFIG[constant.CONFIG_TARGET_WECHAT_ID],
+            constant.GEWE_CONTENT: text
         }, headers={
-            'Content-Type': 'application/json',
-            'X-GEWE-TOKEN': GEWE_CONFIG[constant.CONFIG_GEWE_TOKEN]
+            constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+            constant.HEADER_TOKEN: GEWE_CONFIG[constant.CONFIG_GEWE_TOKEN]
         }, timeout=60).json()
-        print(resp)
-    else:
-        print('微信未登录.')
 

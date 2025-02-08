@@ -3,20 +3,15 @@ import os
 import requests
 from flask import Flask, send_from_directory
 from flask import request
-
 import constant
 
 
-def empty_send_method(data):
-    print(data)
-
-
 server_config = {
-    constant.CONFIG_URL: '',
-    constant.CONFIG_TOKEN: '',
-    constant.CONFIG_IMSDK_NAME: '',
-    constant.CONFIG_USERNAME: '',
-    constant.CONFIG_SEND_METHOD: empty_send_method
+    constant.CONFIG_URL: constant.EMPTY_STR,
+    constant.CONFIG_TOKEN: constant.EMPTY_STR,
+    constant.CONFIG_IMSDK_NAME: constant.EMPTY_STR,
+    constant.CONFIG_USERNAME: constant.EMPTY_STR,
+    constant.CONFIG_SEND_METHOD: None
 }
 
 
@@ -25,7 +20,7 @@ def init_http_server(fn_send_msg_to_admin, wxbot_config):
     port = os.getenv(constant.ENV_PORT)
     prefix = os.getenv(constant.ENV_PREFIX)
     if prefix is None:
-        prefix = ''
+        prefix = constant.EMPTY_STR
     username = os.getenv(constant.ENV_USERNAME)
     url = constant.TEMPLATE_URL % (host, port, prefix)
     token = os.getenv(constant.ENV_TOKEN)
@@ -78,14 +73,14 @@ def init_http_server(fn_send_msg_to_admin, wxbot_config):
             if from_user == wxbot_config[constant.CONFIG_TARGET_WECHAT_ID]:
                 index = 0
                 while index < len(text):
-                    if text[index] == ' ':
+                    if text[index] == constant.WHITE_SPACE:
                         break
                     index = index + 1
                 if index == 0 or index == len(text):
                     fn_send_msg_to_admin(constant.ERROR_CMD_FORMAT + constant.WHITE_SPACE + text)
                 else:
                     send_request(text[:index], text[index + 1:])
-        return 'ok'
+        return constant.EMPTY_STR
 
     @app.get(constant.FLASK_URL_LOGIN)
     def login():
@@ -104,6 +99,7 @@ def send_request(target, data):
         constant.PARAMS_USERNAME: server_config[constant.CONFIG_USERNAME]
     })
     resp = json.loads(res.text)
-    if resp[constant.PARAMS_CODE] != constant.ERROR_CODE_SUCCESS:
+    if resp[constant.PARAMS_CODE] != constant.ERROR_CODE_SUCCESS\
+            and server_config[constant.CONFIG_SEND_METHOD] is not None:
         server_config[constant.CONFIG_SEND_METHOD](resp[constant.PARAMS_MESSAGE])
-    print(res.text)
+
