@@ -38,7 +38,7 @@ def init_inner():
     if res[constant.RET] != 200:
         os.kill(os.getpid(), signal.SIGTERM)
     gewe_token = res[constant.PARAMS_DATA]
-    if check_online_status(app_id, gewe_api, gewe_token):
+    if not check_online_status(app_id, gewe_api, gewe_token):
         while True:
             app_id, result = request_login(app_id, gewe_api, gewe_token)
             if result:
@@ -78,8 +78,8 @@ def check_online_status(app_id, gewe_api, gewe_token):
         if resp[constant.RET] != 200:
             os.kill(os.getpid(), signal.SIGTERM)
         if resp[constant.PARAMS_DATA]:
-            return False
-    return True
+            return True
+    return False
 
 
 def request_login(app_id, gewe_api, gewe_token):
