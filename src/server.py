@@ -16,7 +16,7 @@ server_config = {
 }
 
 
-def init_http_server(fn_send_msg_to_admin, wxbot_config, check_online_status, request_login):
+def init_http_server(fn_send_msg_to_admin, wxbot_config, check_online_status, init_inner):
     host = os.getenv(constant.ENV_HOST)
     port = os.getenv(constant.ENV_PORT)
     prefix = os.getenv(constant.ENV_PREFIX)
@@ -103,19 +103,12 @@ def init_http_server(fn_send_msg_to_admin, wxbot_config, check_online_status, re
                     constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_LOGIN_REQUESTING
                 })
             else:
+                def start_init_inner():
+                    init_inner()
+                    server_config[constant.CONFIG_IS_REQUESTING] = False
+
                 server_config[constant.CONFIG_IS_REQUESTING] = True
-
-                def start_request_login():
-                    while True:
-                        app_id, result = request_login(wxbot_config[constant.CONFIG_APP_ID],
-                                                       wxbot_config[constant.CONFIG_GEWE_API],
-                                                       wxbot_config[constant.CONFIG_GEWE_TOKEN])
-                        if result:
-                            wxbot_config[constant.CONFIG_APP_ID] = app_id
-                            server_config[constant.CONFIG_IS_REQUESTING] = False
-                            break
-
-                Thread(target=start_request_login,
+                Thread(target=start_init_inner,
                        kwargs={},
                        daemon=True).start()
                 return json.dumps({
