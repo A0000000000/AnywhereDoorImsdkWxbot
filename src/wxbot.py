@@ -31,7 +31,6 @@ def init_inner():
             config = json.load(f)
             if constant.CONFIG_APP_ID in config:
                 app_id = config[constant.CONFIG_APP_ID]
-    app_id = 'wx_XJVSJK2T_gDtqsUq2etb2'
     res = requests.post(gewe_api + '/v2/api/tools/getTokenId', headers={
         constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON
     }, timeout=60).json()
