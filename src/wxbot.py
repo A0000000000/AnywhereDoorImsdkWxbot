@@ -31,6 +31,7 @@ def init_inner():
             config = json.load(f)
             if constant.CONFIG_APP_ID in config:
                 app_id = config[constant.CONFIG_APP_ID]
+    app_id = 'wx_XJVSJK2T_gDtqsUq2etb2'
     res = requests.post(gewe_api + '/v2/api/tools/getTokenId', headers={
         constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON
     }, timeout=60).json()
@@ -88,7 +89,7 @@ def request_login(app_id, gewe_api, gewe_token):
         constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
         constant.HEADER_TOKEN: gewe_token
     }, timeout=60).json()
-    if resp[constant.RET] == 500 and resp[constant.PARAMS_DATA][constant.PARAMS_CODE] == -1:
+    if resp[constant.RET] == 500 and resp[constant.PARAMS_DATA][constant.PARAMS_CODE] == '-1':
         resp = requests.post(gewe_api + '/v2/api/login/getLoginQrCode', json={
             constant.GEWE_PARAMS_APP_ID: constant.EMPTY_STR,
         }, headers={
