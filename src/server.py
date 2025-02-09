@@ -4,18 +4,19 @@ import requests
 from flask import Flask, send_from_directory
 from flask import request
 import constant
-
+from threading import Thread
 
 server_config = {
     constant.CONFIG_URL: constant.EMPTY_STR,
     constant.CONFIG_TOKEN: constant.EMPTY_STR,
     constant.CONFIG_IMSDK_NAME: constant.EMPTY_STR,
     constant.CONFIG_USERNAME: constant.EMPTY_STR,
-    constant.CONFIG_SEND_METHOD: None
+    constant.CONFIG_SEND_METHOD: None,
+    constant.CONFIG_IS_REQUESTING: False
 }
 
 
-def init_http_server(fn_send_msg_to_admin, wxbot_config):
+def init_http_server(fn_send_msg_to_admin, wxbot_config, check_online_status, request_login):
     host = os.getenv(constant.ENV_HOST)
     port = os.getenv(constant.ENV_PORT)
     prefix = os.getenv(constant.ENV_PREFIX)
@@ -86,6 +87,42 @@ def init_http_server(fn_send_msg_to_admin, wxbot_config):
     def login():
         return send_from_directory(app.static_folder, constant.SESSION_LOGIN_FILE)
 
+    @app.get(constant.FLASK_URL_CHECK_LOGIN)
+    def check_login():
+        if check_online_status(wxbot_config[constant.CONFIG_APP_ID],
+                               wxbot_config[constant.CONFIG_GEWE_API],
+                               wxbot_config[constant.CONFIG_GEWE_TOKEN]):
+            return json.dumps({
+                constant.PARAMS_CODE: constant.ERROR_CODE_SUCCESS,
+                constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_SUCCESS
+            })
+        else:
+            if server_config[constant.CONFIG_IS_REQUESTING]:
+                return json.dumps({
+                    constant.PARAMS_CODE: constant.ERROR_CODE_LOGIN_REQUESTING,
+                    constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_LOGIN_REQUESTING
+                })
+            else:
+                server_config[constant.CONFIG_IS_REQUESTING] = True
+
+                def start_request_login():
+                    while True:
+                        app_id, result = request_login(wxbot_config[constant.CONFIG_APP_ID],
+                                                       wxbot_config[constant.CONFIG_GEWE_API],
+                                                       wxbot_config[constant.CONFIG_GEWE_TOKEN])
+                        if result:
+                            wxbot_config[constant.CONFIG_APP_ID] = app_id
+                            server_config[constant.CONFIG_IS_REQUESTING] = False
+                            break
+
+                Thread(target=start_request_login,
+                       kwargs={},
+                       daemon=True).start()
+                return json.dumps({
+                    constant.PARAMS_CODE: constant.ERROR_CODE_START_LOGIN_REQUEST,
+                    constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_START_LOGIN_REQUEST
+                })
+
     app.run(constant.FLASK_HOST, constant.FLASK_PORT)
 
 
@@ -99,7 +136,6 @@ def send_request(target, data):
         constant.PARAMS_USERNAME: server_config[constant.CONFIG_USERNAME]
     })
     resp = json.loads(res.text)
-    if resp[constant.PARAMS_CODE] != constant.ERROR_CODE_SUCCESS\
+    if resp[constant.PARAMS_CODE] != constant.ERROR_CODE_SUCCESS \
             and server_config[constant.CONFIG_SEND_METHOD] is not None:
         server_config[constant.CONFIG_SEND_METHOD](resp[constant.PARAMS_MESSAGE])
-

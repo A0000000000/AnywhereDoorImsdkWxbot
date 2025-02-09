@@ -15,6 +15,7 @@ CONFIG_IMSDK_NAME = 'imsdk_name'
 CONFIG_USERNAME = 'username'
 CONFIG_HOST = 'host'
 CONFIG_PORT = 'port'
+CONFIG_IS_REQUESTING = 'is_request_login'
 
 CONFIG_APP_ID = 'app_id'
 CONFIG_GEWE_TOKEN = 'gewe_token'
@@ -35,6 +36,7 @@ FLASK_STATIC_FOLDER = './'
 FLASK_URL_IMSDK = '/imsdk'
 FLASK_URL_LOGIN = '/login'
 FLASK_URL_COLLECT = '/collect'
+FLASK_URL_CHECK_LOGIN = '/checkLogin'
 FLASK_HOST = '0.0.0.0'
 FLASK_PORT = 80
 
@@ -49,10 +51,14 @@ PARAMS_USERNAME = 'username'
 ERROR_CODE_SUCCESS = 0
 ERROR_CODE_INVALID_TOKEN = -1
 ERROR_CODE_INVALID_TARGET = -2
+ERROR_CODE_LOGIN_REQUESTING = -3
+ERROR_CODE_START_LOGIN_REQUEST = -4
 
 ERROR_MESSAGE_SUCCESS = 'success'
 ERROR_MESSAGE_INVALID_TOKEN = 'token is invalid'
 ERROR_MESSAGE_INVALID_TARGET = 'target is not this'
+ERROR_MESSAGE_LOGIN_REQUESTING = 'login requesting'
+ERROR_MESSAGE_START_LOGIN_REQUEST = 'start login request'
 
 EMPTY_STR = ''
 RET = 'ret'
@@ -61,6 +67,7 @@ GEWE_PARAMS_APP_ID = 'appId'
 GEWE_UUID = 'uuid'
 GEWE_QR_IMAGE_BASE64 = 'qrImgBase64'
 GEWE_STATUS = 'status'
+GEWE_EXPIRED_TIME = 'expiredTime'
 GEWE_CALLBACK_URL = 'callbackUrl'
 GEWE_CONTACTS_INFO = 'contactsInfo'
 GEWE_TO_WXID = 'toWxid'

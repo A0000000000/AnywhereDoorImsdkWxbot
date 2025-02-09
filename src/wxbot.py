@@ -35,57 +35,14 @@ def init_inner():
     res = requests.post(gewe_api + '/v2/api/tools/getTokenId', headers={
         constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON
     }, timeout=60).json()
-
     if res[constant.RET] != 200:
         os.kill(os.getpid(), signal.SIGTERM)
     gewe_token = res[constant.PARAMS_DATA]
-    need_login = True
-    if app_id != constant.EMPTY_STR:
-        resp = requests.post(gewe_api + '/v2/api/login/checkOnline', json={
-            constant.GEWE_PARAMS_APP_ID: app_id,
-        }, headers={
-            constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
-            constant.HEADER_TOKEN: gewe_token
-        }, timeout=60).json()
-        if resp[constant.RET] != 200:
-            os.kill(os.getpid(), signal.SIGTERM)
-        if resp[constant.PARAMS_DATA]:
-            need_login = False
-    if need_login:
-        resp = requests.post(gewe_api + '/v2/api/login/getLoginQrCode', json={
-            constant.GEWE_PARAMS_APP_ID: app_id,
-        }, headers={
-            constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
-            constant.HEADER_TOKEN: gewe_token
-        }, timeout=60).json()
-        if resp[constant.RET] != 200:
-            os.kill(os.getpid(), signal.SIGTERM)
-        app_id_new = resp[constant.PARAMS_DATA][constant.GEWE_PARAMS_APP_ID]
-        uuid = resp[constant.PARAMS_DATA][constant.GEWE_UUID]
-        qr_code_base64 = resp[constant.PARAMS_DATA][constant.GEWE_QR_IMAGE_BASE64]
-        qr_image = base64.b64decode(qr_code_base64.split(',')[1])
-        with open(constant.SESSION_LOGIN_FILE, 'wb') as f:
-            f.write(qr_image)
-        if app_id != app_id_new:
-            app_id = app_id_new
-            with open(constant.SESSION_CONFIG_FILE, 'w') as f:
-                f.write(json.dumps({
-                    constant.CONFIG_APP_ID: app_id,
-                }))
+    if check_online_status(app_id, gewe_api, gewe_token):
         while True:
-            resp = requests.post(gewe_api + '/v2/api/login/checkLogin', json={
-                constant.GEWE_PARAMS_APP_ID: app_id,
-                constant.GEWE_UUID: uuid
-            }, headers={
-                constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
-                constant.HEADER_TOKEN: gewe_token
-            }, timeout=60).json()
-            if resp[constant.RET] != 200:
-                os.kill(os.getpid(), signal.SIGTERM)
-            if resp[constant.PARAMS_DATA][constant.GEWE_STATUS] == 2:
-                os.remove(constant.SESSION_LOGIN_FILE)
+            app_id, result = request_login(app_id, gewe_api, gewe_token)
+            if result:
                 break
-            time.sleep(5)
     resp = requests.post(gewe_api + '/v2/api/tools/setCallback', json={
         constant.PARAMS_TOKEN: gewe_token,
         constant.GEWE_CALLBACK_URL: collect + constant.FLASK_URL_COLLECT
@@ -108,6 +65,61 @@ def init_inner():
     if resp[constant.RET] != 200 or 'v3' not in resp[constant.PARAMS_DATA]:
         os.kill(os.getpid(), signal.SIGTERM)
     GEWE_CONFIG[constant.CONFIG_TARGET_WECHAT_ID] = resp[constant.PARAMS_DATA]['v3']
+
+
+def check_online_status(app_id, gewe_api, gewe_token):
+    if app_id != constant.EMPTY_STR:
+        resp = requests.post(gewe_api + '/v2/api/login/checkOnline', json={
+            constant.GEWE_PARAMS_APP_ID: app_id,
+        }, headers={
+            constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+            constant.HEADER_TOKEN: gewe_token
+        }, timeout=60).json()
+        if resp[constant.RET] != 200:
+            os.kill(os.getpid(), signal.SIGTERM)
+        if resp[constant.PARAMS_DATA]:
+            return False
+    return True
+
+
+def request_login(app_id, gewe_api, gewe_token):
+    resp = requests.post(gewe_api + '/v2/api/login/getLoginQrCode', json={
+        constant.GEWE_PARAMS_APP_ID: app_id,
+    }, headers={
+        constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+        constant.HEADER_TOKEN: gewe_token
+    }, timeout=60).json()
+    if resp[constant.RET] != 200:
+        os.kill(os.getpid(), signal.SIGTERM)
+    app_id_new = resp[constant.PARAMS_DATA][constant.GEWE_PARAMS_APP_ID]
+    uuid = resp[constant.PARAMS_DATA][constant.GEWE_UUID]
+    qr_code_base64 = resp[constant.PARAMS_DATA][constant.GEWE_QR_IMAGE_BASE64]
+    qr_image = base64.b64decode(qr_code_base64.split(',')[1])
+    with open(constant.SESSION_LOGIN_FILE, 'wb') as f:
+        f.write(qr_image)
+    if app_id != app_id_new:
+        app_id = app_id_new
+        with open(constant.SESSION_CONFIG_FILE, 'w') as f:
+            f.write(json.dumps({
+                constant.CONFIG_APP_ID: app_id,
+            }))
+    while True:
+        resp = requests.post(gewe_api + '/v2/api/login/checkLogin', json={
+            constant.GEWE_PARAMS_APP_ID: app_id,
+            constant.GEWE_UUID: uuid
+        }, headers={
+            constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
+            constant.HEADER_TOKEN: gewe_token
+        }, timeout=60).json()
+        if resp[constant.RET] != 200:
+            os.kill(os.getpid(), signal.SIGTERM)
+        if resp[constant.PARAMS_DATA][constant.GEWE_EXPIRED_TIME] is None:
+            return app_id, False
+        if resp[constant.PARAMS_DATA][constant.GEWE_STATUS] == 2:
+            os.remove(constant.SESSION_LOGIN_FILE)
+            break
+        time.sleep(5)
+    return app_id, True
 
 
 def send_msg_to_admin(text):
