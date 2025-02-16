@@ -16,7 +16,7 @@ server_config = {
 }
 
 
-def init_http_server(fn_send_msg_to_admin, wxbot_config, check_online_status, init_inner):
+def init_http_server(log_ctx, fn_send_msg_to_admin, wxbot_config, check_online_status, init_inner):
     host = os.getenv(constant.ENV_HOST)
     port = os.getenv(constant.ENV_PORT)
     prefix = os.getenv(constant.ENV_PREFIX)
@@ -85,6 +85,11 @@ def init_http_server(fn_send_msg_to_admin, wxbot_config, check_online_status, in
 
     @app.get(constant.FLASK_URL_LOGIN)
     def login():
+        if not os.path.exists(constant.SESSION_LOGIN_FILE):
+            return json.dumps({
+                constant.PARAMS_CODE: constant.ERROR_CODE_NO_LOGIN_IMAGE,
+                constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_NO_LOGIN_IMAGE
+            })
         return send_from_directory(app.static_folder, constant.SESSION_LOGIN_FILE)
 
     @app.get(constant.FLASK_URL_CHECK_LOGIN)
@@ -98,6 +103,8 @@ def init_http_server(fn_send_msg_to_admin, wxbot_config, check_online_status, in
             })
         else:
             if server_config[constant.CONFIG_IS_REQUESTING]:
+                if os.path.exists(constant.SESSION_LOGIN_FILE):
+                    return send_from_directory(app.static_folder, constant.SESSION_LOGIN_FILE)
                 return json.dumps({
                     constant.PARAMS_CODE: constant.ERROR_CODE_LOGIN_REQUESTING,
                     constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_LOGIN_REQUESTING

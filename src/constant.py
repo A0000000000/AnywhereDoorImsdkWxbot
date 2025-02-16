@@ -10,6 +10,7 @@ ENV_API_GEWE = 'API_GEWE'
 
 CONFIG_SEND_METHOD = 'fn_send_request'
 CONFIG_URL = 'url'
+CONFIG_LOG_URL = 'log_url'
 CONFIG_TOKEN = 'token'
 CONFIG_IMSDK_NAME = 'imsdk_name'
 CONFIG_USERNAME = 'username'
@@ -30,6 +31,7 @@ ERROR_CMD_FORMAT = '命令格式错误。'
 ERROR_INIT = '服务初始化错误。'
 
 TEMPLATE_URL = 'http://%s:%s%s/imsdk'
+TEMPLATE_LOG_URL = 'http://%s:%s%s/imsdk/log'
 
 FLASK_APP_NAME = 'anywhere_door_imsdk_wxbot'
 FLASK_STATIC_FOLDER = './'
@@ -47,18 +49,25 @@ PARAMS_DATA = 'data'
 PARAMS_CODE = 'code'
 PARAMS_MESSAGE = 'message'
 PARAMS_USERNAME = 'username'
+PARAMS_TIMESTAMP = 'timestamp'
+PARAMS_LEVEL = 'level'
+PARAMS_TAG = 'tag'
+PARAMS_LOG = 'log'
+PARAMS_LOG_CONTEXT = 'log_ctx'
 
 ERROR_CODE_SUCCESS = 0
 ERROR_CODE_INVALID_TOKEN = -1
 ERROR_CODE_INVALID_TARGET = -2
 ERROR_CODE_LOGIN_REQUESTING = -3
 ERROR_CODE_START_LOGIN_REQUEST = -4
+ERROR_CODE_NO_LOGIN_IMAGE = -5
 
 ERROR_MESSAGE_SUCCESS = 'success'
 ERROR_MESSAGE_INVALID_TOKEN = 'token is invalid'
 ERROR_MESSAGE_INVALID_TARGET = 'target is not this'
 ERROR_MESSAGE_LOGIN_REQUESTING = 'login requesting'
 ERROR_MESSAGE_START_LOGIN_REQUEST = 'start login request'
+ERROR_MESSAGE_NO_LOGIN_IMAGE = 'no login image'
 
 EMPTY_STR = ''
 RET = 'ret'
@@ -81,3 +90,8 @@ FROM = 'from'
 WHITE_SPACE = ' '
 NEWLINE = '\n'
 COLON = ':'
+
+LOG_LEVEL_DEBUG = 1
+LOG_LEVEL_INFO = 2
+LOG_LEVEL_WARN = 3
+LOG_LEVEL_ERROR = 4

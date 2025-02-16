@@ -6,16 +6,17 @@ import requests
 import constant
 from threading import Thread
 
-
 GEWE_CONFIG = {
     constant.CONFIG_APP_ID: constant.EMPTY_STR,
     constant.CONFIG_GEWE_TOKEN: constant.EMPTY_STR,
     constant.CONFIG_GEWE_API: constant.EMPTY_STR,
-    constant.CONFIG_TARGET_WECHAT_ID: constant.EMPTY_STR
+    constant.CONFIG_TARGET_WECHAT_ID: constant.EMPTY_STR,
+    constant.PARAMS_LOG_CONTEXT: None
 }
 
 
-def init():
+def init(log_ctx):
+    GEWE_CONFIG[constant.PARAMS_LOG_CONTEXT] = log_ctx
     Thread(target=init_inner,
            kwargs={},
            daemon=True).start()
@@ -141,4 +142,3 @@ def send_msg_to_admin(text):
             constant.HEADER_CONTENT_TYPE: constant.APPLICATION_JSON,
             constant.HEADER_TOKEN: GEWE_CONFIG[constant.CONFIG_GEWE_TOKEN]
         }, timeout=60).json()
-
