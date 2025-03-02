@@ -7,6 +7,8 @@ ENV_TOKEN = 'TOKEN'
 ENV_IMSDK_NAME = 'IMSDK_NAME'
 ENV_COLLECT = 'WX_COLLECT'
 ENV_API_GEWE = 'API_GEWE'
+ENV_SELF_HOST = 'SELF_HOST'
+ENV_SELF_PREFIX = 'SELF_PREFIX'
 
 CONFIG_SEND_METHOD = 'fn_send_request'
 CONFIG_URL = 'url'
@@ -32,6 +34,7 @@ ERROR_INIT = '服务初始化错误。'
 
 TEMPLATE_URL = 'http://%s:%s%s/imsdk'
 TEMPLATE_LOG_URL = 'http://%s:%s%s/imsdk/log'
+TEMPLATE_REGISTER_URL = 'http://%s:%s%s/imsdk/register'
 
 FLASK_APP_NAME = 'anywhere_door_imsdk_wxbot'
 FLASK_STATIC_FOLDER = './'
@@ -54,6 +57,9 @@ PARAMS_LEVEL = 'level'
 PARAMS_TAG = 'tag'
 PARAMS_LOG = 'log'
 PARAMS_LOG_CONTEXT = 'log_ctx'
+PARAMS_HOST = 'host'
+PARAMS_PORT = 'port'
+PARAMS_PREFIX = 'prefix'
 
 ERROR_CODE_SUCCESS = 0
 ERROR_CODE_INVALID_TOKEN = -1
