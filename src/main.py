@@ -19,9 +19,10 @@ def register():
     username = os.getenv(constant.ENV_USERNAME)
     imsdk_name = os.getenv(constant.ENV_IMSDK_NAME)
     self_host = os.getenv(constant.ENV_SELF_HOST)
-    self_port = os.getenv(constant.ENV_SELF_PORT)
-    if self_port is None:
-        self_port = constant.FLASK_PORT
+    self_port = constant.FLASK_PORT
+    self_port_env = os.getenv(constant.ENV_SELF_PORT)
+    if self_port_env is not None:
+        self_port = int(self_port_env)
     self_prefix = os.getenv(constant.ENV_SELF_PREFIX)
     if self_prefix is None:
         self_prefix = constant.EMPTY_STR
