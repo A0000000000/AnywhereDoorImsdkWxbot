@@ -1,12 +1,13 @@
 import json
 import os
 import time
-from threading import Thread
 import requests
 import constant
 import log
 import server
 import wxbot
+
+from threading import Thread
 
 
 def register():
@@ -53,9 +54,7 @@ def main():
     wxbot.init(log_ctx)
     server.init_http_server(log_ctx,
                             wxbot.send_msg_to_admin,
-                            wxbot.GEWE_CONFIG,
-                            wxbot.check_online_status,
-                            wxbot.init_inner)
+                            wxbot.gewe_config)
 
 
 if __name__ == '__main__':

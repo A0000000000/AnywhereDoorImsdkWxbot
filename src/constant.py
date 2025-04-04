@@ -10,39 +10,26 @@ ENV_API_GEWE = 'API_GEWE'
 ENV_SELF_HOST = 'SELF_HOST'
 ENV_SELF_PORT = 'SELF_PORT'
 ENV_SELF_PREFIX = 'SELF_PREFIX'
+ENV_APP_ID = 'ENV_APP_ID'
 
 CONFIG_SEND_METHOD = 'fn_send_request'
 CONFIG_URL = 'url'
-CONFIG_LOG_URL = 'log_url'
 CONFIG_TOKEN = 'token'
 CONFIG_IMSDK_NAME = 'imsdk_name'
 CONFIG_USERNAME = 'username'
-CONFIG_HOST = 'host'
-CONFIG_PORT = 'port'
-CONFIG_IS_REQUESTING = 'is_request_login'
 
-CONFIG_APP_ID = 'app_id'
 CONFIG_GEWE_TOKEN = 'gewe_token'
-CONFIG_GEWE_API ='gewe_api'
 CONFIG_TARGET_WECHAT_ID = 'target_wechat_id'
 
-SESSION_DIR = 'session'
-SESSION_LOGIN_FILE = 'session/login.jpg'
-SESSION_CONFIG_FILE = 'session/config.json'
-
 ERROR_CMD_FORMAT = '命令格式错误。'
-ERROR_INIT = '服务初始化错误。'
 
 TEMPLATE_URL = 'http://%s:%s%s/imsdk'
 TEMPLATE_LOG_URL = 'http://%s:%s%s/imsdk/log'
 TEMPLATE_REGISTER_URL = 'http://%s:%s%s/imsdk/register'
 
 FLASK_APP_NAME = 'anywhere_door_imsdk_wxbot'
-FLASK_STATIC_FOLDER = './'
 FLASK_URL_IMSDK = '/imsdk'
-FLASK_URL_LOGIN = '/login'
 FLASK_URL_COLLECT = '/collect'
-FLASK_URL_CHECK_LOGIN = '/checkLogin'
 FLASK_HOST = '0.0.0.0'
 FLASK_PORT = 80
 
@@ -65,25 +52,15 @@ PARAMS_PREFIX = 'prefix'
 ERROR_CODE_SUCCESS = 0
 ERROR_CODE_INVALID_TOKEN = -1
 ERROR_CODE_INVALID_TARGET = -2
-ERROR_CODE_LOGIN_REQUESTING = -3
-ERROR_CODE_START_LOGIN_REQUEST = -4
-ERROR_CODE_NO_LOGIN_IMAGE = -5
 
 ERROR_MESSAGE_SUCCESS = 'success'
 ERROR_MESSAGE_INVALID_TOKEN = 'token is invalid'
 ERROR_MESSAGE_INVALID_TARGET = 'target is not this'
-ERROR_MESSAGE_LOGIN_REQUESTING = 'login requesting'
-ERROR_MESSAGE_START_LOGIN_REQUEST = 'start login request'
-ERROR_MESSAGE_NO_LOGIN_IMAGE = 'no login image'
 
 EMPTY_STR = ''
 RET = 'ret'
 
 GEWE_PARAMS_APP_ID = 'appId'
-GEWE_UUID = 'uuid'
-GEWE_QR_IMAGE_BASE64 = 'qrImgBase64'
-GEWE_STATUS = 'status'
-GEWE_EXPIRED_TIME = 'expiredTime'
 GEWE_CALLBACK_URL = 'callbackUrl'
 GEWE_CONTACTS_INFO = 'contactsInfo'
 GEWE_TO_WXID = 'toWxid'

@@ -1,22 +1,22 @@
 import json
 import os
 import requests
-from flask import Flask, send_from_directory
-from flask import request
 import constant
-from threading import Thread
+
+from flask import Flask
+from flask import request
+
 
 server_config = {
     constant.CONFIG_URL: constant.EMPTY_STR,
     constant.CONFIG_TOKEN: constant.EMPTY_STR,
     constant.CONFIG_IMSDK_NAME: constant.EMPTY_STR,
     constant.CONFIG_USERNAME: constant.EMPTY_STR,
-    constant.CONFIG_SEND_METHOD: None,
-    constant.CONFIG_IS_REQUESTING: False
+    constant.CONFIG_SEND_METHOD: None
 }
 
 
-def init_http_server(log_ctx, fn_send_msg_to_admin, wxbot_config, check_online_status, init_inner):
+def init_http_server(log_ctx, fn_send_msg_to_admin, gewe_config):
     host = os.getenv(constant.ENV_HOST)
     port = os.getenv(constant.ENV_PORT)
     prefix = os.getenv(constant.ENV_PREFIX)
@@ -33,7 +33,7 @@ def init_http_server(log_ctx, fn_send_msg_to_admin, wxbot_config, check_online_s
     server_config[constant.CONFIG_USERNAME] = username
     server_config[constant.CONFIG_SEND_METHOD] = fn_send_msg_to_admin
 
-    app = Flask(constant.FLASK_APP_NAME, static_folder=constant.FLASK_STATIC_FOLDER)
+    app = Flask(constant.FLASK_APP_NAME)
 
     @app.post(constant.FLASK_URL_IMSDK)
     def on_request():
@@ -71,7 +71,7 @@ def init_http_server(log_ctx, fn_send_msg_to_admin, wxbot_config, check_online_s
         if 'TypeName' in data and data['TypeName'] == 'AddMsg' and data['Data']['MsgType'] == 1:
             text = data['Data']['Content']['string']
             from_user = data['Data']['FromUserName']['string']
-            if from_user == wxbot_config[constant.CONFIG_TARGET_WECHAT_ID]:
+            if from_user == gewe_config[constant.CONFIG_TARGET_WECHAT_ID]:
                 index = 0
                 while index < len(text):
                     if text[index] == constant.WHITE_SPACE:
@@ -82,46 +82,6 @@ def init_http_server(log_ctx, fn_send_msg_to_admin, wxbot_config, check_online_s
                 else:
                     send_request(text[:index], text[index + 1:])
         return constant.EMPTY_STR
-
-    @app.get(constant.FLASK_URL_LOGIN)
-    def login():
-        if not os.path.exists(constant.SESSION_LOGIN_FILE):
-            return json.dumps({
-                constant.PARAMS_CODE: constant.ERROR_CODE_NO_LOGIN_IMAGE,
-                constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_NO_LOGIN_IMAGE
-            })
-        return send_from_directory(app.static_folder, constant.SESSION_LOGIN_FILE)
-
-    @app.get(constant.FLASK_URL_CHECK_LOGIN)
-    def check_login():
-        if check_online_status(wxbot_config[constant.CONFIG_APP_ID],
-                               wxbot_config[constant.CONFIG_GEWE_API],
-                               wxbot_config[constant.CONFIG_GEWE_TOKEN]):
-            return json.dumps({
-                constant.PARAMS_CODE: constant.ERROR_CODE_SUCCESS,
-                constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_SUCCESS
-            })
-        else:
-            if server_config[constant.CONFIG_IS_REQUESTING]:
-                if os.path.exists(constant.SESSION_LOGIN_FILE):
-                    return send_from_directory(app.static_folder, constant.SESSION_LOGIN_FILE)
-                return json.dumps({
-                    constant.PARAMS_CODE: constant.ERROR_CODE_LOGIN_REQUESTING,
-                    constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_LOGIN_REQUESTING
-                })
-            else:
-                def start_init_inner():
-                    init_inner()
-                    server_config[constant.CONFIG_IS_REQUESTING] = False
-
-                server_config[constant.CONFIG_IS_REQUESTING] = True
-                Thread(target=start_init_inner,
-                       kwargs={},
-                       daemon=True).start()
-                return json.dumps({
-                    constant.PARAMS_CODE: constant.ERROR_CODE_START_LOGIN_REQUEST,
-                    constant.PARAMS_MESSAGE: constant.ERROR_MESSAGE_START_LOGIN_REQUEST
-                })
 
     app.run(constant.FLASK_HOST, constant.FLASK_PORT)
 
